@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.31'
+}
+
+group 'com.linuxea'
+version '1.0-SNAPSHOT'
+
+repositories {
+//    mavenCentral()
+    def ALIYUN_REPOSITORY = 'https://maven.aliyun.com/repository/public/'
+    def ALIYUN_JCENTER = 'https://maven.aliyun.com/repository/jcenter/'
+    def ALIYUN_GOOGLE = 'https://maven.aliyun.com/repository/google/'
+    def ALIYUN_GRADLE_PLUGIN = 'https://maven.aliyun.com/repository/gradle-plugin/'
+    all { ArtifactRepository repo ->
+        if (repo instanceof MavenArtifactRepository) {
+            def url = repo.url.toString()
+            if (url.startsWith('https://repo1.maven.org/maven2/')) {
+                project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_REPOSITORY."
+                remove repo
+            }
+            if (url.startsWith('https://jcenter.bintray.com/')) {
+                project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_JCENTER."
+                remove repo
+            }
+            if (url.startsWith('https://dl.google.com/dl/android/maven2/')) {
+                project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_GOOGLE."
+                remove repo
+            }
+            if (url.startsWith('https://plugins.gradle.org/m2/')) {
+                project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_GRADLE_PLUGIN."
+                remove repo
+            }
+        }
+    }
+    maven { url ALIYUN_REPOSITORY }
+    maven { url ALIYUN_JCENTER }
+    maven { url ALIYUN_GOOGLE }
+    maven { url ALIYUN_GRADLE_PLUGIN }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation "cn.hutool:hutool-all:5.5.2"
+    implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
+
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+
+    manifest {
+        attributes "Manifest-Version": 1.0,
+                'Main-Class': 'xxx'
+    }
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
